@@ -1,11 +1,12 @@
 import { getPossibleProjectRoot } from '@expo/config/paths';
-import { Rule } from 'webpack';
 
 import { getConfig, getPaths } from '../env';
 import { Environment } from '../types';
 import createBabelLoader from './createBabelLoader';
 import createFontLoader from './createFontLoader';
 import createWorkerLoader from './createWorkerLoader';
+
+type Rule = any;
 
 // Inline resources as Base64 when there is less reason to parallelize their download. The
 // heuristic we use is whether the resource would fit within a TCP/IP packet that we would

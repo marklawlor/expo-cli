@@ -25,7 +25,7 @@ export default function withNodeMocks(webpackConfig: AnyConfiguration): AnyConfi
     tls: 'empty',
     child_process: 'empty',
     ...(webpackConfig.node || {}),
-  };
+  } as any;
 
   return webpackConfig;
 }

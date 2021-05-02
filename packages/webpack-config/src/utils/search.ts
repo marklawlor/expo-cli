@@ -6,10 +6,7 @@ import { isRegExp } from 'util';
 import {
   Configuration,
   Entry,
-  Plugin,
-  Rule,
   RuleSetCondition,
-  RuleSetLoader,
   RuleSetRule,
   RuleSetUse,
   RuleSetUseItem,
@@ -26,10 +23,10 @@ interface RuleItem {
   index: number;
 }
 
-type ResolvedRuleSet = string | RuleSetLoader;
+type ResolvedRuleSet = string | any;
 
 interface PluginItem {
-  plugin: Plugin;
+  plugin: any;
   index: number;
 }
 
@@ -51,7 +48,7 @@ export function findLoader(loaderName: string, rules: RuleSetRule[]): RuleSetRul
     if (
       rule.use &&
       (rule.use as any).loader &&
-      ((rule.use as RuleSetLoader).loader!.includes(`/${loaderName}`) ||
+      ((rule.use as any).loader!.includes(`/${loaderName}`) ||
         (rule.use as any).loader.includes(`\\${loaderName}`))
     ) {
       return rule;
@@ -79,7 +76,7 @@ export function getRulesAsItems(rules: RuleSetRule[]): RuleItem[] {
  */
 export function getRules(config: AnyConfiguration): RuleItem[] {
   const { rules = [] } = config.module || {};
-  return getRulesAsItems(getRulesFromRules(rules));
+  return getRulesAsItems(getRulesFromRules(rules as any));
 }
 
 /**
@@ -88,9 +85,9 @@ export function getRules(config: AnyConfiguration): RuleItem[] {
  * @param config
  * @category utils
  */
-export function getExpoBabelLoader(config: AnyConfiguration): Rule | null {
+export function getExpoBabelLoader(config: AnyConfiguration): any | null {
   const { rules = [] } = config.module || {};
-  const currentRules = getRulesAsItems(getRulesFromRules(rules));
+  const currentRules = getRulesAsItems(getRulesFromRules(rules as any));
   for (const ruleItem of currentRules) {
     const rule: any = ruleItem.rule;
     if (
@@ -132,11 +129,13 @@ export function getLoadersFromRules(rules: RuleItem[]): LoaderItem[] {
     if (rule.oneOf) {
       return getLoadersFromRules(getRulesAsItems(rule.oneOf));
     }
-    return loaderToLoaderItemLoaderPart(rule.loaders || rule.loader || rule.use).map(loader => ({
-      ...loader,
-      rule,
-      ruleIndex,
-    }));
+    return loaderToLoaderItemLoaderPart((rule as any).loaders || rule.loader || rule.use).map(
+      loader => ({
+        ...loader,
+        rule,
+        ruleIndex,
+      })
+    );
   });
 
   return loaders.reduce((arr, a) => arr.concat(a), []);
@@ -156,7 +155,7 @@ function loaderToLoaderItemLoaderPart(loader: RuleSetUse | undefined): LoaderIte
   if (!loader) return [];
   const loaders: LoaderItemLoaderPart[] = [];
   if (typeof loader === 'function') {
-    loaders.push(...loaderToLoaderItemLoaderPart(loader({})));
+    loaders.push(...loaderToLoaderItemLoaderPart(loader({} as any)));
   } else if (isRuleSetItem(loader)) {
     loaders.push({ loader, loaderIndex: -1 });
   } else if (Array.isArray(loader)) {
@@ -211,7 +210,7 @@ export function resolveRuleSetUse(rule?: RuleSetUse | RuleSetUse[]): ResolvedRul
   } else if (typeof rule === 'string' || isRuleSetLoader(rule)) {
     return [rule];
   } else if (typeof rule === 'function') {
-    return resolveRuleSetUse(rule({}));
+    return resolveRuleSetUse((rule as any)({}));
   }
   return [rule];
 }
@@ -296,7 +295,7 @@ export function isRuleSetItem(loader: RuleSetUse): loader is RuleSetUseItem {
  * @param loader
  * @category utils
  */
-export function isRuleSetLoader(loader: RuleSetUse): loader is RuleSetLoader {
+export function isRuleSetLoader(loader: RuleSetUse): loader is any {
   return Object.keys(loader).some(k => ['loader', 'options', 'indent', 'query'].includes(k));
 }
 

@@ -115,7 +115,7 @@ export default function withWorkbox(
   // Always register general service worker
   const expoEntry = webpackConfig.entry;
   webpackConfig.entry = async () => {
-    const entries = await resolveEntryAsync(expoEntry);
+    const entries: any = await resolveEntryAsync(expoEntry);
     const swPath = join(locations.production.registerServiceWorker);
     if (entries.app && !entries.app.includes(swPath) && autoRegister) {
       let content = readFileSync(require.resolve(locations.template.registerServiceWorker), 'utf8');

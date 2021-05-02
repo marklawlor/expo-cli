@@ -5,10 +5,11 @@ import fs from 'fs-extra';
 import { boolish } from 'getenv';
 import path from 'path';
 import resolveFrom from 'resolve-from';
-import { Rule } from 'webpack';
 
 import { getConfig, getMode, getPaths } from '../env';
 import { Environment, Mode } from '../types';
+
+type Rule = any;
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = boolish('GENERATE_SOURCEMAP', true);

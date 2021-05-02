@@ -1,5 +1,4 @@
-import { Rule } from 'webpack';
-
+type Rule = any;
 /**
  * Create a `Webpack.Rule` for loading fonts and including Expo vector icons.
  * Fonts will be loaded to `./fonts/[name].[ext]`.

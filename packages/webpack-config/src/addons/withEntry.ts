@@ -33,7 +33,7 @@ export default function withEntry(
 
   const expoEntry = webpackConfig.entry;
   webpackConfig.entry = async () => {
-    const entries = await resolveEntryAsync(expoEntry);
+    const entries: any = await resolveEntryAsync(expoEntry);
     if (entries.app) {
       if (!entries.app.includes(extraAppEntry)) {
         if (!Array.isArray(entries.app)) {

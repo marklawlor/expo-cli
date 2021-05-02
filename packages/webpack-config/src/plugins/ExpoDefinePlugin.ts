@@ -40,7 +40,7 @@ function createEnvironmentConstants(appManifest: ExpoConfig) {
  * @internal
  */
 export interface ClientEnv {
-  [key: string]: OriginalDefinePlugin.CodeValueObject;
+  [key: string]: any;
 }
 
 /**

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { generateFaviconAsync, IconOptions, ProjectOptions } from 'expo-pwa';
-import { compilation as compilationNS, Compiler } from 'webpack';
+import { Compiler } from 'webpack';
 
 import ModifyHtmlWebpackPlugin, { HTMLLinkNode, HTMLPluginData } from './ModifyHtmlWebpackPlugin';
 
@@ -20,7 +20,7 @@ export default class FaviconWebpackPlugin extends ModifyHtmlWebpackPlugin {
 
   async modifyAsync(
     compiler: Compiler,
-    compilation: compilationNS.Compilation,
+    compilation: any,
     data: HTMLPluginData
   ): Promise<HTMLPluginData> {
     if (!this.favicon) {

@@ -1,4 +1,4 @@
-import { Rule } from 'webpack';
+type Rule = any;
 
 export default (): Rule => ({
   // Cannot exclude any node modules yet but in the future we should just target a select few.

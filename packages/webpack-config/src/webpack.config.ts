@@ -20,7 +20,7 @@ import PnpWebpackPlugin from 'pnp-webpack-plugin';
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
 import WatchMissingNodeModulesPlugin from 'react-dev-utils/WatchMissingNodeModulesPlugin';
 import resolveFrom from 'resolve-from';
-import webpack, { Configuration, HotModuleReplacementPlugin, Options, Output } from 'webpack';
+import webpack, { Configuration, HotModuleReplacementPlugin } from 'webpack';
 import WebpackDeepScopeAnalysisPlugin from 'webpack-deep-scope-plugin';
 import ManifestPlugin from 'webpack-manifest-plugin';
 
@@ -65,8 +65,8 @@ const isCI = boolish('CI', false);
 
 function getDevtool(
   { production, development }: { production: boolean; development: boolean },
-  { devtool }: { devtool?: Options.Devtool }
-): Options.Devtool {
+  { devtool }: { devtool?: any }
+): any {
   if (production) {
     // string or false
     if (devtool !== undefined) {
@@ -86,8 +86,8 @@ function getOutput(
   mode: Mode,
   publicPath: string,
   platform: Environment['platform']
-): Output {
-  const commonOutput: Output = {
+): any {
+  const commonOutput: any = {
     // We inferred the "public path" (such as / or /my-project) from homepage.
     // We use "/" in development.
     publicPath,
@@ -103,9 +103,8 @@ function getOutput(
     // There are also additional JS chunk files if you use code splitting.
     commonOutput.chunkFilename = 'static/js/[name].[contenthash:8].chunk.js';
     // Point sourcemap entries to original disk location (format as URL on Windows)
-    commonOutput.devtoolModuleFilenameTemplate = (
-      info: webpack.DevtoolModuleFilenameTemplateInfo
-    ): string => path.relative(locations.root, info.absoluteResourcePath).replace(/\\/g, '/');
+    commonOutput.devtoolModuleFilenameTemplate = (info: any): string =>
+      path.relative(locations.root, info.absoluteResourcePath).replace(/\\/g, '/');
   } else {
     // Add comments that describe the file import/exports.
     // This will make it easier to debug.
@@ -116,9 +115,8 @@ function getOutput(
     // There are also additional JS chunk files if you use code splitting.
     commonOutput.chunkFilename = 'static/js/[name].chunk.js';
     // Point sourcemap entries to original disk location (format as URL on Windows)
-    commonOutput.devtoolModuleFilenameTemplate = (
-      info: webpack.DevtoolModuleFilenameTemplateInfo
-    ): string => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/');
+    commonOutput.devtoolModuleFilenameTemplate = (info: any): string =>
+      path.resolve(info.absoluteResourcePath).replace(/\\/g, '/');
   }
 
   if (!shouldUseNativeCodeLoading && isPlatformNative(platform)) {
@@ -179,7 +177,7 @@ export default async function (
   const devtool = getDevtool(
     { production: isProd, development: isDev },
     buildConfig as {
-      devtool: Options.Devtool;
+      devtool: any;
     }
   );
 
@@ -359,7 +357,7 @@ export default async function (
       // Generate the `index.html`
       new ExpoHtmlWebpackPlugin(env, templateIndex),
 
-      ExpoInterpolateHtmlPlugin.fromEnv(env, ExpoHtmlWebpackPlugin),
+      ExpoInterpolateHtmlPlugin.fromEnv(env, ExpoHtmlWebpackPlugin as any),
 
       isNative &&
         new ExpoAppManifestWebpackPlugin(

@@ -1,6 +1,5 @@
 import { getPossibleProjectRoot } from '@expo/config/paths';
 import path from 'path';
-import { ExternalsFunctionElement } from 'webpack';
 
 import {
   getAliases,
@@ -35,12 +34,15 @@ export default function withUnimodules(
   // @ts-ignore: We should attempt to use the project root that the other config is already using (used for Gatsby support).
   env.projectRoot = env.projectRoot || webpackConfig.context || getPossibleProjectRoot();
 
+  /** REMOVED
+
   // Add native react aliases
   webpackConfig = withAlias(webpackConfig, getAliases(env.projectRoot));
 
   if (!webpackConfig.module) webpackConfig.module = { rules: [] };
   else if (!webpackConfig.module.rules)
     webpackConfig.module = { ...webpackConfig.module, rules: [] };
+  **/
 
   if (!webpackConfig.plugins) webpackConfig.plugins = [];
   if (!webpackConfig.resolve) webpackConfig.resolve = {};
@@ -50,6 +52,8 @@ export default function withUnimodules(
   env.mode = env.mode || webpackConfig.mode;
 
   const environment: Environment = validateEnvironment(env);
+
+  /** REMOVE FONT LOADING
 
   let { supportsFontLoading } = argv;
 
@@ -62,7 +66,7 @@ export default function withUnimodules(
     if (rulesMatchAnyFiles(webpackConfig, testFontFileNames)) {
       supportsFontLoading = false;
     }
-  }
+  } **/
 
   const { platform = 'web' } = env;
 
@@ -72,6 +76,8 @@ export default function withUnimodules(
   const locations = env.locations || getPaths(environment.projectRoot, environment);
 
   const { build: buildConfig = {} } = config.web || {};
+
+  /** REMOVE BABEL
   const { babel: babelAppConfig = {} } = buildConfig;
 
   const babelProjectRoot = babelAppConfig.root || locations.root;
@@ -88,10 +94,11 @@ export default function withUnimodules(
     ],
     use: babelAppConfig.use,
   });
+  **/
 
   function reuseOrCreatePublicPaths() {
     if (webpackConfig.output && webpackConfig.output.publicPath) {
-      const publicPath = webpackConfig.output.publicPath;
+      const publicPath: any = webpackConfig.output.publicPath;
       return {
         publicPath,
         publicUrl: publicPath.endsWith('/') ? publicPath.slice(0, -1) : publicPath,
@@ -111,6 +118,7 @@ export default function withUnimodules(
     publicPath,
   };
 
+  /** REMOVE ENVIRONMENT LOADING 
   webpackConfig.plugins.push(
     // Used for surfacing information related to constants
     new ExpoDefinePlugin({
@@ -120,8 +128,13 @@ export default function withUnimodules(
     })
   );
 
+  **/
+
   const rules = [
-    ...webpackConfig.module.rules,
+    /** REMOVED
+    ...(webpackConfig.module.rules as any),
+    **/
+    /** REMOVE CUSTOM HTML LOADING
 
     // TODO: Bacon: Auto remove this loader
     {
@@ -129,32 +142,63 @@ export default function withUnimodules(
       use: ['html-loader'],
       exclude: locations.template.folder,
     },
+
+    **/
     // Process application code with Babel.
+    /** REMOVED
     babelLoader,
 
+    **/
+    /** REMOVE FONT LOADING
+
     supportsFontLoading && createFontLoader(locations.root, locations.includeModule),
+    **/
   ].filter(Boolean);
 
+  /** REMOVED 
   webpackConfig.module = {
     ...webpackConfig.module,
     rules,
   };
+  **/
 
+  /** REMOVED 
   webpackConfig.resolve = {
     ...webpackConfig.resolve,
     symlinks: false,
     // Support platform extensions like .web.js
     extensions: getModuleFileExtensions('web'),
   };
+  **/
+
+  /** REMOVE CUSTOM TRANPILE (use next-transpile-modules)
 
   // Transpile and remove expo modules from Next.js externals.
   const includeFunc = babelLoader.include as (path: string) => boolean;
   webpackConfig = ignoreExternalModules(webpackConfig, includeFunc);
 
+  **/
+
+  /** REMOVE RESIZE-OBSERVER-POLYFILL
+
   // Add a loose requirement on the ResizeObserver polyfill if it's installed...
   webpackConfig = withEntry(webpackConfig, env, {
     entryPath: 'resize-observer-polyfill/dist/ResizeObserver.global',
   });
+
+  **/
+  webpackConfig.resolve.alias = {
+    ...webpackConfig.resolve.alias,
+    // Transform all direct `react-native` imports to `react-native-web`
+    'react-native$': 'react-native-web',
+    react: path.resolve('node_modules/react'),
+  };
+  webpackConfig.resolve.extensions = [
+    '.web.js',
+    '.web.ts',
+    '.web.tsx',
+    ...(webpackConfig.resolve.extensions || []),
+  ];
 
   return webpackConfig;
 }
@@ -185,10 +229,12 @@ export function ignoreExternalModules(
     if (typeof external !== 'function') {
       return external;
     }
-    return ((ctx, req, cb) => {
-      const relPath = path.join('node_modules', req);
-      return shouldIncludeModule(relPath) ? cb() : external(ctx, req, cb);
-    }) as ExternalsFunctionElement;
+    return ((ctx: any, cb: any) => {
+      const { context, request } = ctx;
+      const relPath = path.join('node_modules', request);
+      const willInclude = shouldIncludeModule(relPath);
+      return willInclude ? cb() : external(context, request, cb);
+    }) as any;
   });
 
   return webpackConfig;
